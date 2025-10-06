@@ -1,0 +1,748 @@
+openapi: 3.0.3
+info:
+  title: Mars Rover Photos API
+  version: 1.0.0
+  description: |
+    API for accessing photo data from NASA's Mars rovers: Curiosity, Perseverance, Opportunity, and Spirit.
+
+    This API collects image data gathered by NASA's rovers on Mars and makes it easily accessible to developers,
+    educators, and citizen scientists.
+
+    ## Features
+
+    - Query photos by Martian sol (day) or Earth date
+    - Filter by camera type
+    - Access mission manifests with photo inventories
+    - Get latest photos from active rovers
+
+    ## Rate Limits
+
+    - **DEMO_KEY**: 50 requests per hour
+    - **Personal API Key**: 1,000 requests per hour
+
+    Get your free API key at [https://api.nasa.gov/#signUp](https://api.nasa.gov/#signUp)
+
+  contact:
+    name: Chris Cerami
+    email: chrisccerami@gmail.com
+    url: https://github.com/chrisccerami/mars-photo-api
+  license:
+    name: MIT
+    url: https://github.com/chrisccerami/mars-photo-api/blob/master/License.md
+
+servers:
+  - url: https://api.nasa.gov/mars-photos/api/v1
+    description: NASA Production Server (Requires API key)
+  - url: https://mars-photos.herokuapp.com/api/v1
+    description: Community Heroku Server (No API key required, CORS enabled)
+
+tags:
+  - name: Photos
+    description: Photo retrieval endpoints
+  - name: Manifests
+    description: Mission manifest endpoints
+  - name: Rovers
+    description: Rover information endpoints
+
+paths:
+  /rovers:
+    get:
+      summary: List all rovers
+      description: Get information about all Mars rovers
+      operationId: listRovers
+      tags:
+        - Rovers
+      parameters:
+        - $ref: '#/components/parameters/ApiKey'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rovers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Rover'
+              example:
+                rovers:
+                  - id: 5
+                    name: Curiosity
+                    landing_date: "2012-08-06"
+                    launch_date: "2011-11-26"
+                    status: active
+                    max_sol: 4102
+                    max_date: "2024-01-15"
+                    total_photos: 698737
+                    cameras:
+                      - name: FHAZ
+                        full_name: Front Hazard Avoidance Camera
+                      - name: NAVCAM
+                        full_name: Navigation Camera
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /rovers/{rover_name}:
+    get:
+      summary: Get rover details
+      description: Get detailed information about a specific rover
+      operationId: getRover
+      tags:
+        - Rovers
+      parameters:
+        - $ref: '#/components/parameters/RoverName'
+        - $ref: '#/components/parameters/ApiKey'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rover:
+                    $ref: '#/components/schemas/Rover'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /rovers/{rover_name}/photos:
+    get:
+      summary: Get rover photos
+      description: |
+        Retrieve photos from a specific Mars rover. Photos can be queried by Martian sol (day) or Earth date.
+        You must provide either `sol` or `earth_date` parameter.
+
+        ## Date Parameters
+
+        - **sol**: Martian day, counting from rover's landing date (sol 0)
+        - **earth_date**: Earth date in YYYY-MM-DD format
+
+        ## Camera Filtering
+
+        Each rover has different cameras. Use the camera abbreviation to filter results.
+        See the camera list for each rover in the schemas section.
+      operationId: getPhotos
+      tags:
+        - Photos
+      parameters:
+        - $ref: '#/components/parameters/RoverName'
+        - $ref: '#/components/parameters/Sol'
+        - $ref: '#/components/parameters/EarthDate'
+        - $ref: '#/components/parameters/Camera'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/ApiKey'
+      responses:
+        '200':
+          description: Successful response with photos array
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Photo'
+              examples:
+                bySol:
+                  summary: Query by sol
+                  value:
+                    photos:
+                      - id: 102693
+                        sol: 1000
+                        camera:
+                          id: 20
+                          name: FHAZ
+                          rover_id: 5
+                          full_name: Front Hazard Avoidance Camera
+                        img_src: http://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/fcam/FLB_486265257EDR_F0481570FHAZ00323M_.JPG
+                        earth_date: "2015-05-30"
+                        rover:
+                          id: 5
+                          name: Curiosity
+                          landing_date: "2012-08-06"
+                          launch_date: "2011-11-26"
+                          status: active
+                byEarthDate:
+                  summary: Query by Earth date
+                  value:
+                    photos:
+                      - id: 102693
+                        sol: 1000
+                        camera:
+                          id: 20
+                          name: FHAZ
+                          rover_id: 5
+                          full_name: Front Hazard Avoidance Camera
+                        img_src: http://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/fcam/FLB_486265257EDR_F0481570FHAZ00323M_.JPG
+                        earth_date: "2015-05-30"
+                        rover:
+                          id: 5
+                          name: Curiosity
+                          landing_date: "2012-08-06"
+                          launch_date: "2011-11-26"
+                          status: active
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /rovers/{rover_name}/latest_photos:
+    get:
+      summary: Get latest photos
+      description: |
+        Retrieve the most recent photos from a specific rover.
+        Returns photos from the latest sol for which photos exist.
+      operationId: getLatestPhotos
+      tags:
+        - Photos
+      parameters:
+        - $ref: '#/components/parameters/RoverName'
+        - $ref: '#/components/parameters/Camera'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/ApiKey'
+      responses:
+        '200':
+          description: Successful response with latest photos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  latest_photos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Photo'
+              example:
+                latest_photos:
+                  - id: 1023485
+                    sol: 4102
+                    camera:
+                      id: 20
+                      name: FHAZ
+                      rover_id: 5
+                      full_name: Front Hazard Avoidance Camera
+                    img_src: http://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/04102/opgs/edr/fcam/FLB_767891234EDR_F0481570FHAZ00323M_.JPG
+                    earth_date: "2024-01-15"
+                    rover:
+                      id: 5
+                      name: Curiosity
+                      landing_date: "2012-08-06"
+                      launch_date: "2011-11-26"
+                      status: active
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /photos/{photo_id}:
+    get:
+      summary: Get photo by ID
+      description: Retrieve a specific photo by its unique ID
+      operationId: getPhotoById
+      tags:
+        - Photos
+      parameters:
+        - name: photo_id
+          in: path
+          required: true
+          description: Unique photo identifier
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/ApiKey'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photo:
+                    $ref: '#/components/schemas/Photo'
+        '404':
+          description: Photo not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /manifests/{rover_name}:
+    get:
+      summary: Get mission manifest
+      description: |
+        Retrieve the complete mission manifest for a rover.
+
+        The manifest includes:
+        - Rover mission metadata (landing date, status, etc.)
+        - Photo inventory grouped by sol
+        - List of cameras that took photos on each sol
+
+        This endpoint is useful for:
+        - Discovering which sols have photos
+        - Finding out which cameras were active on specific sols
+        - Getting an overview of the mission's photo collection
+      operationId: getManifest
+      tags:
+        - Manifests
+      parameters:
+        - $ref: '#/components/parameters/RoverName'
+        - $ref: '#/components/parameters/ApiKey'
+      responses:
+        '200':
+          description: Successful response with mission manifest
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photo_manifest:
+                    $ref: '#/components/schemas/Manifest'
+              example:
+                photo_manifest:
+                  name: Curiosity
+                  landing_date: "2012-08-06"
+                  launch_date: "2011-11-26"
+                  status: active
+                  max_sol: 4102
+                  max_date: "2024-01-15"
+                  total_photos: 698737
+                  photos:
+                    - sol: 0
+                      earth_date: "2012-08-06"
+                      total_photos: 3702
+                      cameras:
+                        - CHEMCAM
+                        - FHAZ
+                        - MARDI
+                        - RHAZ
+                    - sol: 1
+                      earth_date: "2012-08-07"
+                      total_photos: 16
+                      cameras:
+                        - MAHLI
+                        - MAST
+                        - NAVCAM
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+components:
+  parameters:
+    RoverName:
+      name: rover_name
+      in: path
+      required: true
+      description: Name of the Mars rover
+      schema:
+        type: string
+        enum:
+          - curiosity
+          - perseverance
+          - opportunity
+          - spirit
+      example: curiosity
+
+    Sol:
+      name: sol
+      in: query
+      description: |
+        Martian sol (day) counting from rover's landing date.
+        Sol 0 is the landing date. Cannot be used with earth_date.
+      schema:
+        type: integer
+        minimum: 0
+      example: 1000
+
+    EarthDate:
+      name: earth_date
+      in: query
+      description: |
+        Earth date in YYYY-MM-DD format.
+        Cannot be used with sol parameter.
+      schema:
+        type: string
+        format: date
+      example: "2015-05-30"
+
+    Camera:
+      name: camera
+      in: query
+      description: |
+        Camera abbreviation to filter photos.
+        Case-insensitive. See rover-specific camera lists in schemas.
+      schema:
+        type: string
+      example: NAVCAM
+
+    Page:
+      name: page
+      in: query
+      description: Page number for pagination (25 photos per page)
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      example: 1
+
+    ApiKey:
+      name: api_key
+      in: query
+      required: false
+      description: |
+        NASA API key. Use DEMO_KEY for testing (50 requests/hour).
+        Get your free key at https://api.nasa.gov/#signUp for 1000 requests/hour.
+        Not required when using the Heroku server.
+      schema:
+        type: string
+        default: DEMO_KEY
+      example: DEMO_KEY
+
+  schemas:
+    Photo:
+      type: object
+      required:
+        - id
+        - sol
+        - camera
+        - img_src
+        - earth_date
+        - rover
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique photo identifier
+          example: 102693
+        sol:
+          type: integer
+          description: Martian sol (day) when photo was taken
+          example: 1000
+        camera:
+          $ref: '#/components/schemas/Camera'
+        img_src:
+          type: string
+          format: uri
+          description: URL to the full-resolution image hosted by NASA
+          example: http://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/fcam/FLB_486265257EDR_F0481570FHAZ00323M_.JPG
+        earth_date:
+          type: string
+          format: date
+          description: Earth date when photo was taken
+          example: "2015-05-30"
+        rover:
+          $ref: '#/components/schemas/Rover'
+
+    Camera:
+      type: object
+      required:
+        - id
+        - name
+        - rover_id
+        - full_name
+      properties:
+        id:
+          type: integer
+          description: Unique camera identifier
+          example: 20
+        name:
+          type: string
+          description: Camera abbreviation
+          example: FHAZ
+        rover_id:
+          type: integer
+          description: ID of the rover this camera belongs to
+          example: 5
+        full_name:
+          type: string
+          description: Full camera name
+          example: Front Hazard Avoidance Camera
+
+    Rover:
+      type: object
+      required:
+        - id
+        - name
+        - landing_date
+        - launch_date
+        - status
+      properties:
+        id:
+          type: integer
+          description: Unique rover identifier
+          example: 5
+        name:
+          type: string
+          description: Rover name
+          enum:
+            - Curiosity
+            - Perseverance
+            - Opportunity
+            - Spirit
+          example: Curiosity
+        landing_date:
+          type: string
+          format: date
+          description: Date the rover landed on Mars
+          example: "2012-08-06"
+        launch_date:
+          type: string
+          format: date
+          description: Date the rover was launched from Earth
+          example: "2011-11-26"
+        status:
+          type: string
+          description: Current mission status
+          enum:
+            - active
+            - complete
+          example: active
+        max_sol:
+          type: integer
+          description: Latest Martian sol for which photos exist
+          example: 4102
+        max_date:
+          type: string
+          format: date
+          description: Latest Earth date for which photos exist
+          example: "2024-01-15"
+        total_photos:
+          type: integer
+          description: Total number of photos taken by this rover
+          example: 698737
+        cameras:
+          type: array
+          description: List of cameras on this rover
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              full_name:
+                type: string
+
+    Manifest:
+      type: object
+      required:
+        - name
+        - landing_date
+        - launch_date
+        - status
+        - max_sol
+        - max_date
+        - total_photos
+        - photos
+      properties:
+        name:
+          type: string
+          description: Rover name
+          example: Curiosity
+        landing_date:
+          type: string
+          format: date
+          description: Landing date on Mars
+          example: "2012-08-06"
+        launch_date:
+          type: string
+          format: date
+          description: Launch date from Earth
+          example: "2011-11-26"
+        status:
+          type: string
+          enum:
+            - active
+            - complete
+          example: active
+        max_sol:
+          type: integer
+          description: Latest sol with photos
+          example: 4102
+        max_date:
+          type: string
+          format: date
+          description: Latest Earth date with photos
+          example: "2024-01-15"
+        total_photos:
+          type: integer
+          description: Total photos in mission
+          example: 698737
+        photos:
+          type: array
+          description: Photo inventory grouped by sol
+          items:
+            $ref: '#/components/schemas/ManifestPhoto'
+
+    ManifestPhoto:
+      type: object
+      required:
+        - sol
+        - earth_date
+        - total_photos
+        - cameras
+      properties:
+        sol:
+          type: integer
+          description: Martian sol
+          example: 0
+        earth_date:
+          type: string
+          format: date
+          description: Corresponding Earth date
+          example: "2012-08-06"
+        total_photos:
+          type: integer
+          description: Number of photos taken on this sol
+          example: 3702
+        cameras:
+          type: array
+          description: Cameras that took photos on this sol
+          items:
+            type: string
+          example:
+            - CHEMCAM
+            - FHAZ
+            - MARDI
+            - RHAZ
+
+    CuriosityCamera:
+      type: object
+      description: Available cameras on Curiosity rover
+      properties:
+        FHAZ:
+          type: string
+          enum: [Front Hazard Avoidance Camera]
+        RHAZ:
+          type: string
+          enum: [Rear Hazard Avoidance Camera]
+        MAST:
+          type: string
+          enum: [Mast Camera]
+        CHEMCAM:
+          type: string
+          enum: [Chemistry and Camera Complex]
+        MAHLI:
+          type: string
+          enum: [Mars Hand Lens Imager]
+        MARDI:
+          type: string
+          enum: [Mars Descent Imager]
+        NAVCAM:
+          type: string
+          enum: [Navigation Camera]
+
+    PerseveranceCamera:
+      type: object
+      description: Available cameras on Perseverance rover
+      properties:
+        EDL_RUCAM:
+          type: string
+          enum: [Rover Up-Look Camera]
+        EDL_RDCAM:
+          type: string
+          enum: [Rover Down-Look Camera]
+        EDL_DDCAM:
+          type: string
+          enum: [Descent Stage Down-Look Camera]
+        EDL_PUCAM1:
+          type: string
+          enum: [Parachute Up-Look Camera A]
+        EDL_PUCAM2:
+          type: string
+          enum: [Parachute Up-Look Camera B]
+        NAVCAM_LEFT:
+          type: string
+          enum: [Navigation Camera - Left]
+        NAVCAM_RIGHT:
+          type: string
+          enum: [Navigation Camera - Right]
+        MCZ_RIGHT:
+          type: string
+          enum: [Mast Camera Zoom - Right]
+        MCZ_LEFT:
+          type: string
+          enum: [Mast Camera Zoom - Left]
+        FRONT_HAZCAM_LEFT_A:
+          type: string
+          enum: [Front Hazard Avoidance Camera - Left]
+        FRONT_HAZCAM_RIGHT_A:
+          type: string
+          enum: [Front Hazard Avoidance Camera - Right]
+        REAR_HAZCAM_LEFT:
+          type: string
+          enum: [Rear Hazard Avoidance Camera - Left]
+        REAR_HAZCAM_RIGHT:
+          type: string
+          enum: [Rear Hazard Avoidance Camera - Right]
+        SKYCAM:
+          type: string
+          enum: [MEDA Skycam]
+        SHERLOC_WATSON:
+          type: string
+          enum: [SHERLOC WATSON Camera]
+
+    OpportunitySpiritCamera:
+      type: object
+      description: Available cameras on Opportunity and Spirit rovers
+      properties:
+        FHAZ:
+          type: string
+          enum: [Front Hazard Avoidance Camera]
+        RHAZ:
+          type: string
+          enum: [Rear Hazard Avoidance Camera]
+        NAVCAM:
+          type: string
+          enum: [Navigation Camera]
+        PANCAM:
+          type: string
+          enum: [Panoramic Camera]
+        MINITES:
+          type: string
+          enum: [Miniature Thermal Emission Spectrometer]
+
+    Error:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: string
+          description: Error message
+          example: Invalid Rover Name
+
+  responses:
+    BadRequest:
+      description: Bad request - Invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errors: Invalid Rover Name
+
+    UnauthorizedError:
+      description: API key missing or invalid
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  message:
+                    type: string
+          example:
+            error:
+              code: API_KEY_MISSING
+              message: No api_key was supplied. Get one at https://api.nasa.gov

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mars Rover Photos API - RapiDoc</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+  </head>
+  <body>
+    <rapi-doc
+      spec-url="openapi.yaml"
+      theme="dark"
+      bg-color="#1e1e1e"
+      text-color="#f0f0f0"
+      primary-color="#ff6b35"
+      nav-bg-color="#2d2d2d"
+      nav-text-color="#ffffff"
+      nav-hover-bg-color="#404040"
+      nav-accent-color="#ff6b35"
+
+      render-style="read"
+      layout="row"
+      schema-style="table"
+      schema-expand-level="1"
+      schema-description-expanded="true"
+
+      show-header="true"
+      show-info="true"
+      show-components="true"
+
+      allow-try="true"
+      allow-server-selection="true"
+      allow-authentication="true"
+      allow-spec-url-load="false"
+      allow-spec-file-load="false"
+
+      heading-text="Mars Rover Photos API"
+
+      use-path-in-nav-bar="false"
+      nav-item-spacing="compact"
+
+      font-size="default"
+      regular-font="'Roboto', sans-serif"
+      mono-font="'Roboto Mono', monospace"
+
+      fill-request-fields-with-example="true"
+      persist-auth="true"
+    >
+      <div slot="header" style="padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <h2 style="margin: 0; color: white;">🔴 Mars Rover Photos API</h2>
+        <p style="margin: 5px 0 0 0; color: rgba(255,255,255,0.9); font-size: 14px;">
+          Access photo data from NASA's Mars rovers: Curiosity, Perseverance, Opportunity, and Spirit
+        </p>
+      </div>
+    </rapi-doc>
+  </body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mars Rover Photos API - Documentation Styles</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .intro h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .intro p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .option-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .option-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .option-card p {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .option-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .features {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .features h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .features ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .features li {
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+
+        .features li::before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .comparison {
+            margin-top: 40px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .check {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .cross {
+            color: #f44336;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            background: #f8f9fa;
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔴 Mars Rover Photos API</h1>
+            <p>Choose Your Documentation Style</p>
+        </header>
+
+        <div class="content">
+            <div class="intro">
+                <h2>Beautiful API Documentation, Three Ways</h2>
+                <p>The same comprehensive OpenAPI specification, rendered in three different styles. Pick your favorite!</p>
+            </div>
+
+            <div class="options">
+                <a href="index.html" class="option-card">
+                    <div class="icon">📖</div>
+                    <h3>Redoc</h3>
+                    <p>Clean, professional three-column layout. Perfect for reading and reference.</p>
+                    <span class="btn">View Redoc</span>
+                </a>
+
+                <a href="swagger.html" class="option-card">
+                    <div class="icon">🔧</div>
+                    <h3>Swagger UI</h3>
+                    <p>Interactive playground. Try out API calls directly from the browser.</p>
+                    <span class="btn">View Swagger</span>
+                </a>
+
+                <a href="rapidoc.html" class="option-card">
+                    <div class="icon">⚡</div>
+                    <h3>RapiDoc</h3>
+                    <p>Modern, fast, and highly customizable. Great for dark mode lovers.</p>
+                    <span class="btn">View RapiDoc</span>
+                </a>
+            </div>
+
+            <div class="features">
+                <h3>What's Documented</h3>
+                <ul>
+                    <li>All API Endpoints</li>
+                    <li>Request Parameters</li>
+                    <li>Response Schemas</li>
+                    <li>Error Handling</li>
+                    <li>Code Examples</li>
+                    <li>Camera Lists</li>
+                    <li>Rate Limiting</li>
+                    <li>Authentication</li>
+                </ul>
+            </div>
+
+            <div class="comparison">
+                <h3 style="text-align: center; margin-bottom: 20px; color: #333;">Feature Comparison</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Redoc</th>
+                            <th>Swagger UI</th>
+                            <th>RapiDoc</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Best for Reading</td>
+                            <td class="check">✓✓✓</td>
+                            <td>✓</td>
+                            <td>✓✓</td>
+                        </tr>
+                        <tr>
+                            <td>Interactive "Try It"</td>
+                            <td class="cross">✗</td>
+                            <td class="check">✓✓✓</td>
+                            <td class="check">✓✓✓</td>
+                        </tr>
+                        <tr>
+                            <td>Search</td>
+                            <td class="check">✓✓✓</td>
+                            <td class="check">✓✓</td>
+                            <td class="check">✓✓</td>
+                        </tr>
+                        <tr>
+                            <td>Dark Mode</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                            <td class="check">✓✓✓</td>
+                        </tr>
+                        <tr>
+                            <td>Mobile Friendly</td>
+                            <td class="check">✓✓✓</td>
+                            <td>✓✓</td>
+                            <td class="check">✓✓✓</td>
+                        </tr>
+                        <tr>
+                            <td>Download OpenAPI</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                            <td class="check">✓</td>
+                        </tr>
+                        <tr>
+                            <td>Code Samples</td>
+                            <td class="check">✓✓✓</td>
+                            <td class="check">✓✓</td>
+                            <td class="check">✓✓</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 40px; padding: 30px; background: #f0f4ff; border-radius: 15px; text-align: center;">
+                <h3 style="color: #333; margin-bottom: 15px;">Quick Links</h3>
+                <p style="color: #666; margin-bottom: 20px;">
+                    <a href="openapi.yaml" style="color: #667eea; text-decoration: none; font-weight: 600;">📄 Download OpenAPI Spec</a> •
+                    <a href="examples.md" style="color: #667eea; text-decoration: none; font-weight: 600;">📚 Usage Examples</a> •
+                    <a href="https://github.com/chrisccerami/mars-photo-api" style="color: #667eea; text-decoration: none; font-weight: 600;">💻 API Source Code</a>
+                </p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Mars Rover Photos API maintained by <a href="mailto:chrisccerami@gmail.com">Chris Cerami</a></p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Get your free NASA API key at <a href="https://api.nasa.gov/#signUp" target="_blank">api.nasa.gov</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
